@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BD Share</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="page active">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <button onclick="skip()">Skip</button>
+    </div>
+
+    <!-- Top Navigation Bar -->
+    <div class="top-nav" id="navBar" style="display: none;">
+        <button id="homeBtn">Home</button>
+        <button id="postBtn">Post</button>
+        <button id="settingsBtn">Settings</button>
+    </div>
+
+    <!-- Home Page -->
+    <div id="homePage" class="page">
+        <h2>Home</h2>
+        <div id="postList">
+            <!-- Dynamically loaded posts will appear here -->
+        </div>
+    </div>
+
+    <!-- Post Popup -->
+    <div id="postPopup" class="popup">
+        <textarea id="postContent" placeholder="What's on your mind?"></textarea>
+        <input type="file" id="imageUpload" accept="image/*" multiple>
+        <div id="imagePreview"></div>
+        <button onclick="submitPost()">Post</button>
+        <button onclick="closePopup()">Close</button>
+    </div>
+
+    <!-- Settings Page -->
+    <div id="settingsPage" class="page">
+        <h2>Settings</h2>
+        <div id="userPosts">
+            <!-- User's posts will appear here -->
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
