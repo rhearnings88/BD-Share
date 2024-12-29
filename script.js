@@ -2,6 +2,7 @@ let loggedInUser = null;
 const validUser = { username: "rh94", password: "asdf123" };
 const posts = [];
 
+// Login Functionality
 function login() {
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
@@ -24,6 +25,7 @@ function skip() {
     renderPosts();
 }
 
+// Post Popup
 function openPostPopup() {
     if (!loggedInUser) {
         alert("Only logged-in users can post.");
@@ -39,6 +41,7 @@ function closePopup() {
     document.getElementById("imagePreview").innerHTML = "";
 }
 
+// Submit Post
 function submitPost() {
     const content = document.getElementById("postContent").value;
     const imageInput = document.getElementById("imageUpload");
@@ -69,10 +72,12 @@ function createPost(content, images) {
         likes: 0
     };
     posts.push(post);
+    savePostsToLocalStorage();
     closePopup();
     renderPosts();
 }
 
+// Render Posts
 function renderPosts() {
     const postList = document.getElementById("postList");
     postList.innerHTML = "";
@@ -90,27 +95,33 @@ function renderPosts() {
     });
 }
 
+// Utility Function for Links
 function convertLinksToAnchors(text) {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     return text.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
 }
 
+// Delete Post
 function deletePost(postId) {
     const index = posts.findIndex(post => post.id === postId);
     if (index !== -1) {
         posts.splice(index, 1);
+        savePostsToLocalStorage();
         renderPosts();
     }
 }
 
+// Like Post
 function likePost(postId) {
     const post = posts.find(post => post.id === postId);
     if (post) {
         post.likes++;
+        savePostsToLocalStorage();
         renderPosts();
     }
 }
 
+// Navigation Buttons
 document.getElementById("homeBtn").addEventListener("click", () => {
     switchPage("homePage");
 });
@@ -126,6 +137,7 @@ document.getElementById("settingsBtn").addEventListener("click", () => {
     renderUserPosts();
 });
 
+// Render User Posts
 function renderUserPosts() {
     const userPosts = document.getElementById("userPosts");
     userPosts.innerHTML = "";
@@ -141,9 +153,28 @@ function renderUserPosts() {
     });
 }
 
+// Switch Pages
 function switchPage(pageId) {
     document.querySelectorAll(".page").forEach(page => {
         page.classList.remove("active");
     });
     document.getElementById(pageId).classList.add("active");
 }
+
+// Local Storage Management
+function savePostsToLocalStorage() {
+    localStorage.setItem("posts", JSON.stringify(posts));
+}
+
+function loadPostsFromLocalStorage() {
+    const savedPosts = localStorage.getItem("posts");
+    if (savedPosts) {
+        posts.push(...JSON.parse(savedPosts));
+    }
+}
+
+// Load Posts on Page Load
+window.onload = () => {
+    loadPostsFromLocalStorage();
+    renderPosts();
+};
