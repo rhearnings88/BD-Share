@@ -17,6 +17,7 @@ function login() {
         document.getElementById("postBtn").style.display = "inline";
         document.getElementById("settingsBtn").style.display = "inline";
 
+        loadUserPostsFromLocalStorage();
         renderPosts();
     } else {
         alert("Invalid username or password");
@@ -82,7 +83,7 @@ function createPost(content, images) {
         likes: 0
     };
     posts.push(post);
-    savePostsToLocalStorage();
+    saveUserPostsToLocalStorage();
     closePopup();
     renderPosts();
 }
@@ -132,7 +133,7 @@ function deletePost(postId) {
     const index = posts.findIndex(post => post.id === postId);
     if (index !== -1) {
         posts.splice(index, 1);
-        savePostsToLocalStorage();
+        saveUserPostsToLocalStorage();
         renderPosts();
     }
 }
@@ -142,7 +143,7 @@ function likePost(postId) {
     const post = posts.find(post => post.id === postId);
     if (post) {
         post.likes++;
-        savePostsToLocalStorage();
+        saveUserPostsToLocalStorage();
         renderPosts();
     }
 }
@@ -193,19 +194,25 @@ function switchPage(pageId) {
 }
 
 // Local Storage Management
-function savePostsToLocalStorage() {
-    localStorage.setItem("posts", JSON.stringify(posts));
+function saveUserPostsToLocalStorage() {
+    if (loggedInUser) {
+        localStorage.setItem(`posts_${loggedInUser}`, JSON.stringify(posts));
+    }
 }
 
-function loadPostsFromLocalStorage() {
-    const savedPosts = localStorage.getItem("posts");
-    if (savedPosts) {
-        posts.push(...JSON.parse(savedPosts));
+function loadUserPostsFromLocalStorage() {
+    if (loggedInUser) {
+        const savedPosts = localStorage.getItem(`posts_${loggedInUser}`);
+        if (savedPosts) {
+            posts.push(...JSON.parse(savedPosts));
+        }
     }
 }
 
 // Load Posts on Page Load
 window.onload = () => {
-    loadPostsFromLocalStorage();
+    if (loggedInUser) {
+        loadUserPostsFromLocalStorage();
+    }
     renderPosts();
 };
