@@ -13,7 +13,7 @@ function login() {
         document.getElementById("homePage").classList.add("active");
         document.getElementById("navBar").style.display = "flex";
 
-        // Show all navigation options for logged-in users
+        // Show "Post" and "Settings" buttons for logged-in users
         document.getElementById("postBtn").style.display = "inline";
         document.getElementById("settingsBtn").style.display = "inline";
 
@@ -33,8 +33,8 @@ function skip() {
     document.getElementById("postBtn").style.display = "none";
     document.getElementById("settingsBtn").style.display = "none";
 
-    loadAllUserPosts();
-    renderPostsForSkippedUser();
+    loadAllPostsFromLocalStorage();
+    renderPosts();
 }
 
 // Post Popup
@@ -84,7 +84,7 @@ function createPost(content, images) {
         likes: 0
     };
     posts.push(post);
-    saveUserPostsToLocalStorage();
+    savePostsToLocalStorage();
     closePopup();
     renderPosts();
 }
@@ -107,22 +107,6 @@ function renderPosts() {
     });
 }
 
-// Render Posts for Skipped Users
-function renderPostsForSkippedUser() {
-    const postList = document.getElementById("postList");
-    postList.innerHTML = "";
-    posts.filter(post => post.user !== null).forEach(post => {
-        const postElement = document.createElement("div");
-        postElement.className = "post";
-        postElement.innerHTML = `
-            <p>${convertLinksToAnchors(post.content)}</p>
-            ${post.images.map(img => `<img src="${img}" alt="Post Image">`).join("")}
-            <p>Likes: ${post.likes}</p>
-        `;
-        postList.appendChild(postElement);
-    });
-}
-
 // Utility Function for Links
 function convertLinksToAnchors(text) {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -134,7 +118,7 @@ function deletePost(postId) {
     const index = posts.findIndex(post => post.id === postId);
     if (index !== -1) {
         posts.splice(index, 1);
-        saveUserPostsToLocalStorage();
+        savePostsToLocalStorage();
         renderPosts();
     }
 }
@@ -144,7 +128,7 @@ function likePost(postId) {
     const post = posts.find(post => post.id === postId);
     if (post) {
         post.likes++;
-        saveUserPostsToLocalStorage();
+        savePostsToLocalStorage();
         renderPosts();
     }
 }
@@ -152,11 +136,7 @@ function likePost(postId) {
 // Navigation Buttons
 document.getElementById("homeBtn").addEventListener("click", () => {
     switchPage("homePage");
-    if (!loggedInUser) {
-        renderPostsForSkippedUser();
-    } else {
-        renderPosts();
-    }
+    renderPosts();
 });
 
 document.getElementById("postBtn").addEventListener("click", openPostPopup);
@@ -195,22 +175,20 @@ function switchPage(pageId) {
 }
 
 // Local Storage Management
-function saveUserPostsToLocalStorage() {
-    if (loggedInUser) {
-        localStorage.setItem(`posts_${loggedInUser}`, JSON.stringify(posts));
-    }
+function savePostsToLocalStorage() {
+    const postsKey = loggedInUser ? `posts_${loggedInUser}` : "posts_shared";
+    localStorage.setItem(postsKey, JSON.stringify(posts));
 }
 
 function loadUserPostsFromLocalStorage() {
-    if (loggedInUser) {
-        const savedPosts = localStorage.getItem(`posts_${loggedInUser}`);
-        if (savedPosts) {
-            posts.push(...JSON.parse(savedPosts));
-        }
+    const postsKey = `posts_${loggedInUser}`;
+    const savedPosts = localStorage.getItem(postsKey);
+    if (savedPosts) {
+        posts.push(...JSON.parse(savedPosts));
     }
 }
 
-function loadAllUserPosts() {
+function loadAllPostsFromLocalStorage() {
     Object.keys(localStorage).forEach(key => {
         if (key.startsWith("posts_")) {
             const savedPosts = JSON.parse(localStorage.getItem(key));
@@ -221,10 +199,6 @@ function loadAllUserPosts() {
 
 // Load Posts on Page Load
 window.onload = () => {
-    if (!loggedInUser) {
-        loadAllUserPosts();
-    } else {
-        loadUserPostsFromLocalStorage();
-    }
+    loadAllPostsFromLocalStorage();
     renderPosts();
 };
