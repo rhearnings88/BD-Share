@@ -12,6 +12,11 @@ function login() {
         document.getElementById("loginPage").classList.remove("active");
         document.getElementById("homePage").classList.add("active");
         document.getElementById("navBar").style.display = "flex";
+
+        // Show all navigation options for logged-in users
+        document.getElementById("postBtn").style.display = "inline";
+        document.getElementById("settingsBtn").style.display = "inline";
+
         renderPosts();
     } else {
         alert("Invalid username or password");
@@ -22,7 +27,12 @@ function skip() {
     document.getElementById("loginPage").classList.remove("active");
     document.getElementById("homePage").classList.add("active");
     document.getElementById("navBar").style.display = "flex";
-    renderPosts();
+
+    // Hide "Post" and "Settings" for skipped users
+    document.getElementById("postBtn").style.display = "none";
+    document.getElementById("settingsBtn").style.display = "none";
+
+    renderPostsForSkippedUser();
 }
 
 // Post Popup
@@ -95,6 +105,22 @@ function renderPosts() {
     });
 }
 
+// Render Posts for Skipped Users
+function renderPostsForSkippedUser() {
+    const postList = document.getElementById("postList");
+    postList.innerHTML = "";
+    posts.filter(post => post.user !== null).forEach(post => {
+        const postElement = document.createElement("div");
+        postElement.className = "post";
+        postElement.innerHTML = `
+            <p>${convertLinksToAnchors(post.content)}</p>
+            ${post.images.map(img => `<img src="${img}" alt="Post Image">`).join("")}
+            <p>Likes: ${post.likes}</p>
+        `;
+        postList.appendChild(postElement);
+    });
+}
+
 // Utility Function for Links
 function convertLinksToAnchors(text) {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -124,6 +150,11 @@ function likePost(postId) {
 // Navigation Buttons
 document.getElementById("homeBtn").addEventListener("click", () => {
     switchPage("homePage");
+    if (!loggedInUser) {
+        renderPostsForSkippedUser();
+    } else {
+        renderPosts();
+    }
 });
 
 document.getElementById("postBtn").addEventListener("click", openPostPopup);
