@@ -17,7 +17,7 @@ function login() {
         document.getElementById("postBtn").style.display = "inline";
         document.getElementById("settingsBtn").style.display = "inline";
 
-        loadUserPostsFromLocalStorage();
+        loadAllPostsFromLocalStorage();
         renderPosts();
     } else {
         alert("Invalid username or password");
@@ -78,7 +78,7 @@ function submitPost() {
 function createPost(content, images) {
     const post = {
         id: Date.now(),
-        user: loggedInUser,
+        user: loggedInUser || "Anonymous",
         content,
         images,
         likes: 0
@@ -176,25 +176,15 @@ function switchPage(pageId) {
 
 // Local Storage Management
 function savePostsToLocalStorage() {
-    const postsKey = loggedInUser ? `posts_${loggedInUser}` : "posts_shared";
-    localStorage.setItem(postsKey, JSON.stringify(posts));
-}
-
-function loadUserPostsFromLocalStorage() {
-    const postsKey = `posts_${loggedInUser}`;
-    const savedPosts = localStorage.getItem(postsKey);
-    if (savedPosts) {
-        posts.push(...JSON.parse(savedPosts));
-    }
+    localStorage.setItem("posts", JSON.stringify(posts));
 }
 
 function loadAllPostsFromLocalStorage() {
-    Object.keys(localStorage).forEach(key => {
-        if (key.startsWith("posts_")) {
-            const savedPosts = JSON.parse(localStorage.getItem(key));
-            posts.push(...savedPosts);
-        }
-    });
+    const savedPosts = localStorage.getItem("posts");
+    if (savedPosts) {
+        const loadedPosts = JSON.parse(savedPosts);
+        posts.push(...loadedPosts);
+    }
 }
 
 // Load Posts on Page Load
