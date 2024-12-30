@@ -33,6 +33,7 @@ function skip() {
     document.getElementById("postBtn").style.display = "none";
     document.getElementById("settingsBtn").style.display = "none";
 
+    loadAllUserPosts();
     renderPostsForSkippedUser();
 }
 
@@ -209,9 +210,20 @@ function loadUserPostsFromLocalStorage() {
     }
 }
 
+function loadAllUserPosts() {
+    Object.keys(localStorage).forEach(key => {
+        if (key.startsWith("posts_")) {
+            const savedPosts = JSON.parse(localStorage.getItem(key));
+            posts.push(...savedPosts);
+        }
+    });
+}
+
 // Load Posts on Page Load
 window.onload = () => {
-    if (loggedInUser) {
+    if (!loggedInUser) {
+        loadAllUserPosts();
+    } else {
         loadUserPostsFromLocalStorage();
     }
     renderPosts();
